@@ -1,0 +1,79 @@
+Virtualbox
+- Leave all as default except
+    - Memory -> 2048
+- Go into settings and change sound to Intel HD Audio
+- Mount Arch ISO
+
+Installation
+- Enable scaling in virtualbox
+- Connected to ethernet automatically
+- fdisk /dev/sda
+    - o - new MBR partition table
+    - n - new partition
+    - w - write to disk and exit
+- mkfs.ext4 /dev/sda1
+- mount /dev/sda1 /mnt
+- pacstrap /mnt
+    - defaults to installing base group
+- genfstab -p /mnt >> /mnt/etc/fstab
+- arch-chroot /mnt
+- ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
+- vi /etc/locale.gen
+    - enable en_US.UTF-8 UTF-8
+- locale-gen
+- vi /etc/locale.conf
+    - LANG="en_US.UTF-8"
+- echo tutorial > /etc/hostname
+- passwd
+- pacman -S grub
+- grub-install --target=i386-pc /dev/sda
+- grub-mkconfig -o /boot/grub/grub.cfg
+
+First boot
+- pacman -Qe | less
+    - show all explicitly installed packages (not dependencies)
+- cd /etc/netctl
+    - cp examples/ethernet-dhcp .
+    - ip link
+        - you'll see enp0s3 - this is your device to put in ethernet-dhcp
+    - vi ethernet-dhcp
+        - change device to enp0s3
+    - netctl start ethernet-dhcp
+    - netctl enable ethernet-dhcp
+- useradd -m -G users me
+    - -m creates home directory
+- passwd me
+- pacman -S sudo
+- vi /etc/sudoers 
+    - enable wheel line
+    - x! to save
+- gpasswd -a me wheel
+
+Login as 'me' user
+- sudo pacman -S gnome
+- sudo systemctl enable gdm
+- sudo pacman -Ss virtualbox
+    - sudo pacman -S virtualbox-guest-utils
+        - use option 2 for virtualbox-guest-modules-arch
+- sudo systemctl enable vboxservice
+- reboot
+
+Login as 'me' user
+- Disable scaling in virtualbox
+    - The virtualbox modules will automatically scale the resolution to the window size
+- Go to Chrome
+- Use Epiphpant as browser
+- Go to AUR and download snapshot for yaourt and package-query
+- Go to build package-query
+    - Need to install base-devel
+        - sudo pacman -S base-devel
+    - makepkg
+        - need to install dependencies
+            - makepkg -s
+    - sudo pacman -U --as-deps package-query.....
+- Build and install yaourt
+- Update system with yaourt
+    - It can be used in place of pacman
+- yaourt -Ss google-chrome
+    - yaourt -S --noconfirm google-chrome
+        - stop midway and edit makepkg.conf
