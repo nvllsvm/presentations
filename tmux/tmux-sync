@@ -1,0 +1,34 @@
+#!/bin/sh
+
+multi_run() {
+    if [ -z "$COMMAND_ARGUMENTS" ]; then
+        echo "No arguments supplied for command."
+        exit
+    fi
+
+    local command_arguments=( $COMMAND_ARGUMENTS )
+
+    COMMAND=${command_arguments[0]}
+    unset command_arguments[0];
+
+    first=${command_arguments[1]}
+    unset command_arguments[1];
+
+    for i in "${command_arguments[@]}"; do
+        tmux split-window -h  "$COMMAND $i"
+        tmux select-layout tiled > /dev/null
+    done
+
+    tmux set-window-option synchronize-panes on
+
+    $COMMAND $first
+
+    tmux send-keys -t 1 C-l
+}
+
+COMMAND_ARGUMENTS=${COMMAND_ARGUMENTS:=$*}
+
+clear
+multi_run
+tmux set-window-option synchronize-panes off
+clear
